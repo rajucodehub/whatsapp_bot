@@ -1,0 +1,22 @@
+{
+  "name": "whatsapp-bot",
+  "version": "1.0.0",
+  "description": "Webhook-based WhatsApp Cloud API bot with rule-based auto replies.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "webhook",
+    "cloud-api"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2"
+  }
+}
