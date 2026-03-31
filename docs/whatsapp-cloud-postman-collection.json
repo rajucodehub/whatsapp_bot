@@ -1,0 +1,248 @@
+{
+  "info": {
+    "name": "WhatsApp Cloud API Bot - Webhook + Messaging",
+    "_postman_id": "9c0e9f50-6e6f-4a95-b17e-b8f97b39f2b2",
+    "description": "Collection to test WhatsApp Cloud API send message endpoints and webhook verification callback.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1) Webhook Verify (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{webhook_base_url}}/webhook?hub.mode=subscribe&hub.verify_token={{verify_token}}&hub.challenge={{challenge}}",
+          "host": [
+            "{{webhook_base_url}}"
+          ],
+          "path": [
+            "webhook"
+          ],
+          "query": [
+            {
+              "key": "hub.mode",
+              "value": "subscribe"
+            },
+            {
+              "key": "hub.verify_token",
+              "value": "{{verify_token}}"
+            },
+            {
+              "key": "hub.challenge",
+              "value": "{{challenge}}"
+            }
+          ]
+        },
+        "description": "Meta webhook verification request. Your server should return the challenge value with status 200 when verify token matches."
+      },
+      "response": []
+    },
+    {
+      "name": "2) Simulate Incoming Webhook (POST to your server)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "{{webhook_base_url}}/webhook",
+          "host": [
+            "{{webhook_base_url}}"
+          ],
+          "path": [
+            "webhook"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"object\": \"whatsapp_business_account\",\n  \"entry\": [\n    {\n      \"id\": \"WABA_ID\",\n      \"changes\": [\n        {\n          \"value\": {\n            \"messaging_product\": \"whatsapp\",\n            \"metadata\": {\n              \"display_phone_number\": \"{{display_phone_number}}\",\n              \"phone_number_id\": \"{{phone_number_id}}\"\n            },\n            \"contacts\": [\n              {\n                \"profile\": {\n                  \"name\": \"Test User\"\n                },\n                \"wa_id\": \"{{to_wa_id}}\"\n              }\n            ],\n            \"messages\": [\n              {\n                \"from\": \"{{to_wa_id}}\",\n                \"id\": \"wamid.HBgMTEST123\",\n                \"timestamp\": \"1710000000\",\n                \"text\": {\n                  \"body\": \"price\"\n                },\n                \"type\": \"text\"\n              }\n            ]\n          },\n          \"field\": \"messages\"\n        }\n      ]\n    }\n  ]\n}"
+        },
+        "description": "Sends a fake incoming webhook payload to your local/public webhook endpoint so you can test parser/rule logic without waiting for real messages."
+      },
+      "response": []
+    },
+    {
+      "name": "3) Send Text Message (Cloud API)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{whatsapp_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/{{graph_version}}/{{phone_number_id}}/messages",
+          "protocol": "https",
+          "host": [
+            "graph",
+            "facebook",
+            "com"
+          ],
+          "path": [
+            "{{graph_version}}",
+            "{{phone_number_id}}",
+            "messages"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{to_wa_id}}\",\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"Hello from Postman test\"\n  }\n}"
+        },
+        "description": "Send a basic text message to a WhatsApp user from your WhatsApp Cloud API number."
+      },
+      "response": []
+    },
+    {
+      "name": "4) Send Reply to Message (Context)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{whatsapp_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/{{graph_version}}/{{phone_number_id}}/messages",
+          "protocol": "https",
+          "host": [
+            "graph",
+            "facebook",
+            "com"
+          ],
+          "path": [
+            "{{graph_version}}",
+            "{{phone_number_id}}",
+            "messages"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"{{to_wa_id}}\",\n  \"context\": {\n    \"message_id\": \"{{incoming_message_id}}\"\n  },\n  \"type\": \"text\",\n  \"text\": {\n    \"body\": \"This is an automated reply to your message.\"\n  }\n}"
+        },
+        "description": "Sends a message as a reply to a specific incoming message ID (threaded context)."
+      },
+      "response": []
+    },
+    {
+      "name": "5) Mark Message as Read",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{whatsapp_token}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/{{graph_version}}/{{phone_number_id}}/messages",
+          "protocol": "https",
+          "host": [
+            "graph",
+            "facebook",
+            "com"
+          ],
+          "path": [
+            "{{graph_version}}",
+            "{{phone_number_id}}",
+            "messages"
+          ]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"messaging_product\": \"whatsapp\",\n  \"status\": \"read\",\n  \"message_id\": \"{{incoming_message_id}}\"\n}"
+        },
+        "description": "Marks an incoming message as read."
+      },
+      "response": []
+    },
+    {
+      "name": "6) Get Phone Number Info",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{whatsapp_token}}"
+          }
+        ],
+        "url": {
+          "raw": "https://graph.facebook.com/{{graph_version}}/{{phone_number_id}}?fields=display_phone_number,verified_name,quality_rating,code_verification_status",
+          "protocol": "https",
+          "host": [
+            "graph",
+            "facebook",
+            "com"
+          ],
+          "path": [
+            "{{graph_version}}",
+            "{{phone_number_id}}"
+          ],
+          "query": [
+            {
+              "key": "fields",
+              "value": "display_phone_number,verified_name,quality_rating,code_verification_status"
+            }
+          ]
+        },
+        "description": "Checks WhatsApp phone number status and metadata."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "webhook_base_url",
+      "value": "https://your-public-url.ngrok-free.app"
+    },
+    {
+      "key": "verify_token",
+      "value": "your_verify_token"
+    },
+    {
+      "key": "challenge",
+      "value": "123456"
+    },
+    {
+      "key": "whatsapp_token",
+      "value": "EAAG..."
+    },
+    {
+      "key": "phone_number_id",
+      "value": "123456789012345"
+    },
+    {
+      "key": "display_phone_number",
+      "value": "15551234567"
+    },
+    {
+      "key": "to_wa_id",
+      "value": "919876543210"
+    },
+    {
+      "key": "incoming_message_id",
+      "value": "wamid.HBgM..."
+    },
+    {
+      "key": "graph_version",
+      "value": "v20.0"
+    }
+  ]
+}

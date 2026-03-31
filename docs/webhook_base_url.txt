@@ -1,0 +1,29 @@
+# 1) Verify Node is installed (optional)
+node -v
+npm -v
+
+# 2) Install ngrok (if not installed)
+# Option A: winget
+winget install ngrok.ngrok
+
+# Option B: choco (if you use Chocolatey)
+# choco install ngrok
+
+# 3) Add ngrok auth token (one-time)
+# Get token from: https://dashboard.ngrok.com/get-started/your-authtoken
+ngrok config add-authtoken YOUR_NGROK_AUTHTOKEN
+
+# 4) Start your webhook app (example: Express on port 3000)
+# Run this in your project folder
+npm install
+npm run dev
+
+# 5) In a NEW terminal, start tunnel to same port
+ngrok http 3000
+
+# 6) Copy HTTPS forwarding URL shown by ngrok
+# Example output:
+# Forwarding  https://abcd-1234.ngrok-free.app -> http://localhost:3000
+# Use:
+# webhook_base_url = https://abcd-1234.ngrok-free.app
+# callback URL     = https://abcd-1234.ngrok-free.app/webhook
